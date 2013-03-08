@@ -12,7 +12,7 @@
 
 
 /**
- *  @brief	把传入的数组数据通过本方法去掉重复的数据
+ *	@brief	把传入的数组数据通过本方法去掉重复的数据
  *
  *  @param	RepeatArr传入一个数组参数
  *
@@ -97,9 +97,9 @@
 		  FileType:(NSString *) FileType
 		FileImagey:(UIImage	*)FileImagey{
 	
-    [UIImageJPEGRepresentation(FileImagey, 1.0f) writeToFile:[self dataFilePath:FileName FileName:FileName FileType:FileType] atomically:YES];
+    [UIImageJPEGRepresentation(FileImagey, 1.0f) writeToFile:[self dataFilePath:FilePath FileName:FileName FileType:FileType] atomically:YES];
     NSArray	*ssss=[[NSArray alloc] initWithObjects:FileName, nil];
-    [self SaveToFilePlist:[self generateTradeNOPlist] FileArray:ssss];
+    [self SaveToFilePlist:FilePath FileName:[self generateTradeNOPlist] FileType:FileType FileArray:ssss];
 	[ssss release];
     ssss = nil;
 }
@@ -146,8 +146,8 @@
 + (NSArray *)loadFromFile:(NSString *) FilePath
 				 FileName:(NSString *) FileName
 				 FileType:(NSString *) FileType{
-    NSString *filePath=[self dataFilePath:FileName FileName:FileName FileType:FileType];
-    NSArray *arrays;
+    NSString *filePath=[self dataFilePath:FilePath FileName:FileName FileType:FileType];
+	NSArray *arrays = nil;
     if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]){
         arrays=[[[NSArray alloc] initWithContentsOfFile:filePath] autorelease];
     }
@@ -173,10 +173,10 @@
 	NSString *type;
 	BOOL bo;
 	
-	if (!FilePath) {
+	if (FilePath) {
 		path = [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:FilePath];
 	}else{
-		path = [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:@"default"];
+		path = [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:@"tabbar"];
 	}
 	
 	if (FileType) {
