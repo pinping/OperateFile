@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @interface OperateFilePlist : NSObject{
-  	
+		
 }
 
 + (NSArray *) MacLoveRepeat:(NSArray *)RepeatArr;

@@ -18,7 +18,7 @@
  *
  *	@return	返回一个去重的数组
  */
-+ (NSArray *) MacLoveRepeat:(NSArray *) RepeatArr
++ (NSArray *) MacLoveRepeat:(NSArray *)RepeatArr
 {
 		
 	NSMutableArray	*categoryArray = [[NSMutableArray alloc] init];
@@ -33,18 +33,6 @@
 	}
 
 	return [categoryArray autorelease];
-}
-
-
-+ (NSArray *) queryFilePath: (NSString *) FilePath {
-	
-    NSArray *subpaths;
-	NSString *fontPath = [self dataFilePath:FilePath FileName:nil FileType:nil];
-	
-	NSFileManager *fileManager = [[NSFileManager alloc] init];
-	subpaths = [fileManager subpathsAtPath:fontPath];
-	
-	return subpaths;
 }
 
 
@@ -105,23 +93,13 @@
  *  @param	FileImagey  指定图片
  */
 + (void)saveToFile:(NSString *) FilePath
-		 FilePlist:(NSString *) FilePlist
-	 FilePlistType:(NSString *) FilePlistType
 		  FileName:(NSString *) FileName
 		  FileType:(NSString *) FileType
-		FileImagey:(UIImage	*) FileImagey{
+		FileImagey:(UIImage	*)FileImagey{
 	
-	
-	
-	
-	
-    [UIImageJPEGRepresentation(FileImagey, 1.0f) writeToFile:[self dataFilePath:FilePath FileName:FileName FileType:FileType] atomically:YES];
-	
-	
+    [UIImageJPEGRepresentation(FileImagey, 1.0f) writeToFile:[self dataFilePath:FileName FileName:FileName FileType:FileType] atomically:YES];
     NSArray	*ssss=[[NSArray alloc] initWithObjects:FileName, nil];
-	
-	
-    [self SaveToFilePlist:FilePlist FileName:[self generateTradeNOPlist] FileType:FilePlistType FileArray:ssss];
+    [self SaveToFilePlist:[self generateTradeNOPlist] FileArray:ssss];
 	[ssss release];
     ssss = nil;
 }
@@ -146,26 +124,11 @@
 			   FileArray: (NSArray	*) FileArray
 {
 	
-	BOOL bo;
-	bo = [FileName isEqual:@""];
+	BOOL bo = [FileName isEqual:@""];
 	NSAssert(!bo,@"保存文件等于空");
-	bo = [FileArray count];
-	NSAssert(bo,@"保存数组等于空");
-	
-	if ([[NSFileManager defaultManager] fileExistsAtPath:[self dataFilePath:FilePath FileName:FileName FileType:FileType]]) {
-       	NSMutableArray	*zongPlist =[[NSMutableArray alloc]initWithArray:[self	loadFromFile:FilePath FileName:FileName FileType:FileType]];
-        [zongPlist addObjectsFromArray:FileArray];
-		
-		
-        [[self MacLoveRepeat:zongPlist] writeToFile:[self dataFilePath:FilePath FileName:FileName FileType:FileType] atomically:YES];
-        [zongPlist release];
-        zongPlist	=	nil;
-    }else {
-        [[self MacLoveRepeat:FileArray] writeToFile:[self dataFilePath:FilePath FileName:FileName FileType:FileType] atomically:YES];
-    }
-	
-	
-	
+	BOOL bo1 = [FileArray count];
+	NSAssert(bo1,@"保存数组等于空");
+    [FileArray writeToFile:[self dataFilePath:FilePath FileName:FileName FileType:FileType] atomically:YES];
 }
 
 
@@ -183,8 +146,8 @@
 + (NSArray *)loadFromFile:(NSString *) FilePath
 				 FileName:(NSString *) FileName
 				 FileType:(NSString *) FileType{
-    NSString *filePath=[self dataFilePath:FilePath FileName:FileName FileType:FileType];
-	NSArray *arrays = nil;
+    NSString *filePath=[self dataFilePath:FileName FileName:FileName FileType:FileType];
+    NSArray *arrays;
     if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]){
         arrays=[[[NSArray alloc] initWithContentsOfFile:filePath] autorelease];
     }
@@ -210,14 +173,16 @@
 	NSString *type;
 	BOOL bo;
 	
-	if (FilePath) {
+	if (!FilePath) {
 		path = [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:FilePath];
 	}else{
-		path = [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:@"Default"];
+		path = [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:@"default"];
 	}
 	
 	if (FileType) {
 		type = [FileName stringByAppendingString:FileType];
+	}else{
+		NSAssert(FileType,@"创建目录失败");
 	}
 	
     if (FileName) {
