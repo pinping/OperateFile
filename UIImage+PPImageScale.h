@@ -15,6 +15,10 @@
 @interface UIImage (PPImageScale)
 
 
--(UIImage*)scaleToSize:(CGSize)size;
+- (UIImage *)scaleToWidth:(float)width;
+
+- (UIImage *)scaleToHeight:(float)height;
+
+- (UIImage *)scaleToSize:(CGSize)size;
 
 @end
