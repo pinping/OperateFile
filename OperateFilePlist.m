@@ -18,7 +18,7 @@
  *
  *	@return	返回一个去重的数组
  */
-+ (NSArray *) MacLoveRepeat:(NSArray *)RepeatArr
++ (NSArray *) MacLoveRepeat:(NSArray *) RepeatArr
 {
 		
 	NSMutableArray	*categoryArray = [[NSMutableArray alloc] init];
@@ -33,6 +33,25 @@
 	}
 
 	return [categoryArray autorelease];
+}
+
+
+/**
+ *	@brief	通过传入的字符串路径，查找该路径的所以文件，把所有文件的名称返回；
+ *
+ *  @param	FilePath传入一个字符串路径。
+ *
+ *	@return	返回所有文件的名称。
+ */
++ (NSArray *) queryFilePath: (NSString *) FilePath {
+	
+		NSArray *subpaths;
+		NSString *fontPath = [self dataFilePath:FilePath FileName:nil FileType:nil];
+
+		NSFileManager *fileManager = [[NSFileManager alloc] init];
+		subpaths = [fileManager subpathsAtPath:fontPath];
+
+		return subpaths;
 }
 
 
@@ -92,14 +111,19 @@
  *
  *  @param	FileImagey  指定图片
  */
-+ (void)saveToFile:(NSString *) FilePath
-		  FileName:(NSString *) FileName
-		  FileType:(NSString *) FileType
-		FileImagey:(UIImage	*)FileImagey{
++ (void) saveToFile: (NSString *) FilePath
+					FilePlist: (NSString *) FilePlist
+			FilePlistType: (NSString *) FilePlistType
+					 FileName: (NSString *) FileName
+					 FileType: (NSString *) FileType
+				 FileImagey: (UIImage	*) FileImagey{
 	
-    [UIImageJPEGRepresentation(FileImagey, 1.0f) writeToFile:[self dataFilePath:FileName FileName:FileName FileType:FileType] atomically:YES];
+    [UIImageJPEGRepresentation(FileImagey, 1.0f) writeToFile:[self dataFilePath:FilePath FileName:FileName FileType:FileType] atomically:YES];
+	
     NSArray	*ssss=[[NSArray alloc] initWithObjects:FileName, nil];
-    [self SaveToFilePlist:[self generateTradeNOPlist] FileArray:ssss];
+	
+	
+    [self SaveToFilePlist:FilePlist FileName:[self generateTradeNOPlist] FileType:FilePlistType FileArray:ssss fileNO:YES];
 	[ssss release];
     ssss = nil;
 }
@@ -114,21 +138,35 @@
  *
  *  @param	FileType  指定数据类型
  *
- *	@param	FileArray传入数据
+ *	@param	FileArray  传入数据
  *
  *	@return	没有返回值
  */
 + (void) SaveToFilePlist: (NSString *) FilePath
-				FileName: (NSString *) FileName
-				FileType: (NSString *) FileType
-			   FileArray: (NSArray	*) FileArray
+								FileName: (NSString *) FileName
+								FileType: (NSString *) FileType
+							 FileArray: (NSArray	*) FileArray
+									fileNO: (BOOL) fileNO
 {
 	
-	BOOL bo = [FileName isEqual:@""];
+	BOOL bo;
+	bo = [FileName isEqual:@""];
 	NSAssert(!bo,@"保存文件等于空");
-	BOOL bo1 = [FileArray count];
-	NSAssert(bo1,@"保存数组等于空");
-    [FileArray writeToFile:[self dataFilePath:FilePath FileName:FileName FileType:FileType] atomically:YES];
+	bo = [FileArray count];
+	NSAssert(bo,@"保存数组等于空");
+	
+	if ([[NSFileManager defaultManager] fileExistsAtPath:[self dataFilePath:FilePath FileName:FileName FileType:FileType]] && fileNO) {
+       	NSMutableArray	*zongPlist =[[NSMutableArray alloc]initWithArray:[self	loadFromFile:FilePath FileName:FileName FileType:FileType]];
+        [zongPlist addObjectsFromArray:FileArray];
+        [[self MacLoveRepeat:zongPlist] writeToFile:[self dataFilePath:FilePath FileName:FileName FileType:FileType] atomically:YES];
+        [zongPlist release];
+        zongPlist	=	nil;
+    }else {
+        [[self MacLoveRepeat:FileArray] writeToFile:[self dataFilePath:FilePath FileName:FileName FileType:FileType] atomically:YES];
+    }
+	
+	
+	
 }
 
 
@@ -144,10 +182,10 @@
  *	@return	返回一个NSArray的数据。
  */
 + (NSArray *)loadFromFile:(NSString *) FilePath
-				 FileName:(NSString *) FileName
-				 FileType:(NSString *) FileType{
-    NSString *filePath=[self dataFilePath:FileName FileName:FileName FileType:FileType];
-    NSArray *arrays;
+								 FileName:(NSString *) FileName
+								 FileType:(NSString *) FileType{
+    NSString *filePath=[self dataFilePath:FilePath FileName:FileName FileType:FileType];
+		NSArray *arrays = nil;
     if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]){
         arrays=[[[NSArray alloc] initWithContentsOfFile:filePath] autorelease];
     }
@@ -167,33 +205,31 @@
  *	@return	返回查找到的路径
  */
 + (NSString *) dataFilePath:(NSString *) FilePath
-				   FileName:(NSString *) FileName
-				   FileType:(NSString *) FileType{
-	NSString *path;
-	NSString *type;
-	BOOL bo;
-	
-	if (!FilePath) {
-		path = [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:FilePath];
-	}else{
-		path = [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:@"default"];
-	}
-	
-	if (FileType) {
-		type = [FileName stringByAppendingString:FileType];
-	}else{
-		NSAssert(FileType,@"创建目录失败");
-	}
-	
+									 FileName:(NSString *) FileName
+									 FileType:(NSString *) FileType{
+		NSString *path;
+		NSString *type;
+		BOOL bo;
+		
+		if (FilePath) {
+				path = [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:FilePath];
+		}else{
+				path = [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:@"Default"];
+		}
+		
+		if (FileType) {
+				type = [FileName stringByAppendingString:FileType];
+		}
+		
     if (FileName) {
-		bo= [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:nil];
+				bo= [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:nil];
         return [path stringByAppendingPathComponent:type];
     }else {
         bo = [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:nil];
         return path;
     }
-	NSAssert(bo,@"创建目录失败");
-	
+		NSAssert(bo,@"创建目录失败");
+		
 }
 
 

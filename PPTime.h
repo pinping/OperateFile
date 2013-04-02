@@ -10,4 +10,7 @@
 
 @interface PPTime : NSObject
 
+
++ (NSString *) timeWeek:(NSString *) timeStr ;
+
 @end
