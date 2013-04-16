@@ -20,4 +20,5 @@
 
 - (UIImage *)scaleToSize:(CGSize)size;
 
+
 @end
