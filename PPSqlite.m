@@ -13,7 +13,7 @@
 - (void) openTheCreate
 {
 		NSLog(@"数据库创建中");
-		NSString *database_path = [OperateFilePlist dataFilePath:nil FileName:DBNAME FileType:nil];
+		NSString *database_path = [PPOperateFile PPdataFilePath:nil FileName:DBNAME FileType:nil];
 		if (sqlite3_open([database_path UTF8String], &db) != SQLITE_OK) {
 				sqlite3_close(db);
 				NSLog(@"数据库打开失败");

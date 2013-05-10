@@ -8,33 +8,42 @@
 
 #import <Foundation/Foundation.h>
 #import "PPAuxiliary.h"
+#import "MacPublicDefine.h"
+
 
 @class PPAuxiliary;
 
 @interface PPOperateFile : NSObject
 
 
-+ (void)saveToFile: (NSString *) FilePath
-				 FilePlist: (NSString *) FilePlist
-		 FilePlistType: (NSString *) FilePlistType
-					FileName: (NSString *) FileName
-					FileType: (NSString *) FileType
-				FileImagey: (UIImage	*) FileImagey;
++ (void)PPsaveToFile: (NSString *) FilePath
+					 FilePlist: (NSString *) FilePlist
+			 FilePlistType: (NSString *) FilePlistType
+						FileName: (NSString *) FileName
+						FileType: (NSString *) FileType
+					FileImagey: (UIImage	*) FileImagey;
 
 
-+ (void) SaveToFilePlist: (NSString *) FilePath
-								FileName: (NSString *) FileName
-								FileType: (NSString *) FileType
-							 FileArray: (NSArray	*) FileArray
-									fileNO: (BOOL) fileNO;
-
-
-+ (NSArray *)loadFromFile: (NSString *) FilePath
++ (void)PPsaveToFilePlist: (NSString *) FilePath
 								 FileName: (NSString *) FileName
-								 FileType: (NSString *) FileType;
+								 FileType: (NSString *) FileType
+								FileArray: (NSArray	*) FileArray
+									 fileNO: (BOOL) fileNO;
 
 
-+ (NSString *) dataFilePath: (NSString *) FilePath
++ (NSArray *)PPloadFromFile: (NSString *) FilePath
 									 FileName: (NSString *) FileName
 									 FileType: (NSString *) FileType;
+
+
++ (NSString *)PPdataFilePath: (NSString *) FilePath
+										FileName: (NSString *) FileName
+										FileType: (NSString *) FileType;
+
+
++ (void)PPdeleteFilePath: (NSString *) FilePath
+								FileName: (NSString *) FileName
+								FileType: (NSString *) FileType;
+
+
 @end

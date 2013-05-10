@@ -44,7 +44,7 @@
 + (NSArray *) queryFilePath: (NSString *) FilePath {
 		
 		NSArray *subpaths;
-		NSString *fontPath = [PPOperateFile dataFilePath:FilePath FileName:nil FileType:nil];
+		NSString *fontPath = [PPOperateFile PPdataFilePath:FilePath FileName:nil FileType:nil];
 		
 		NSFileManager *fileManager = [[NSFileManager alloc] init];
 		subpaths = [fileManager subpathsAtPath:fontPath];
