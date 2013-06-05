@@ -91,16 +91,19 @@
  *
  *	@return	返回一个NSArray的数据。
  */
-+ (NSArray *)PPloadFromFile:(NSString *) FilePath
-									 FileName:(NSString *) FileName
-									 FileType:(NSString *) FileType
++ (id)PPloadFromFile:(NSString *) FilePath
+						FileName:(NSString *) FileName
+						FileType:(NSString *) FileType
 {
 		
     NSString *filePath=[self PPdataFilePath:FilePath FileName:FileName FileType:FileType];
+		NSLog(@"filePath = %@ ", filePath);
+		
 		NSArray *arrays = nil;
     if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]){
         arrays=[[[NSArray alloc] initWithContentsOfFile:filePath] autorelease];
     }
+		NSLog(@"arrays = %@ ", arrays);
     return arrays;
 }
 

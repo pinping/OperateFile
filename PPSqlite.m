@@ -10,23 +10,25 @@
 
 @implementation PPSqlite
 
-- (void) openTheCreate
+- (void)openSqlite:(NSString *)sqlPath
 {
-		NSLog(@"数据库创建中");
-		NSString *database_path = [PPOperateFile PPdataFilePath:nil FileName:DBNAME FileType:nil];
-		if (sqlite3_open([database_path UTF8String], &db) != SQLITE_OK) {
-				sqlite3_close(db);
-				NSLog(@"数据库打开失败");
-		}
+    if (sqlite3_open([sqlPath UTF8String], &db) != SQLITE_OK) {
+        sqlite3_close(db);
+        NSLog(@"数据库打开失败");
+    }
 }
 
-- (void) execSql: (NSString *)sql
+- (void)execSql:(NSString *)sql
 {
+    NSLog(@"数据库操作!%@", sql);
     char *err;
+
     if (sqlite3_exec(db, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
         sqlite3_close(db);
         NSLog(@"数据库操作数据失败!");
     }
+
+    NSLog(@"error: %s", err);
 }
 
 @end

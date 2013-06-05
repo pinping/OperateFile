@@ -7,14 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "MacPublicImoprt.h"
-
+#import <sqlite3.h>
 
 @interface PPSqlite : NSObject
 {
     sqlite3 *db;
 }
 
-- (void) openTheCreate;
+//- (void) openTheCreate;
+- (void) openSqlite:(NSString *)sql;
 - (void) execSql: (NSString *)sql;
 @end

@@ -41,7 +41,8 @@
  *
  *	@return	返回所有文件的名称。
  */
-+ (NSArray *) queryFilePath: (NSString *) FilePath {
++ (NSArray *) queryFilePath: (NSString *) FilePath 
+{
 		
 		NSArray *subpaths;
 		NSString *fontPath = [PPOperateFile PPdataFilePath:FilePath FileName:nil FileType:nil];
@@ -58,7 +59,8 @@
  *
  *	@return	返回当前时间的字符串。
  */
-+ (NSString *)generateTradeNOPlist{
++ (NSString *)generateTradeNOPlist
+{
     NSDate * date = [NSDate date];
     NSDateFormatter * formatter = [[NSDateFormatter alloc] init];
     [formatter setDateStyle:kCFDateFormatterFullStyle];
@@ -74,7 +76,8 @@
  *
  *	@return	返回当前时间的字符串+5个随机的字符串。
  */
-+ (NSString *)generateTradeNO{
++ (NSString *)generateTradeNO
+{
     const int N = 5;
     
     NSString *sourceString = @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
