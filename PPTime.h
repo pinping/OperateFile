@@ -11,6 +11,14 @@
 @interface PPTime : NSObject
 
 
-+ (NSString *) timeWeek:(NSString *) timeStr ;
++ (NSString *)PPTimeHour;
+
++ (NSString *)PPTimeMonth:(NSString *)atime;
+
++ (NSString *)PPTimeWeek:(NSString *)atime;
+
++ (NSString *)PPTimeDay:(NSString *)atime;
+
++ (NSString *)PPSetTimeInt:(NSTimeInterval)timeSeconds setTimeFormat:(NSString *)timeFormatStr setTimeZome:(NSString *)timeZoneStr;
 
 @end

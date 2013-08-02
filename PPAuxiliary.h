@@ -9,17 +9,33 @@
 #import <Foundation/Foundation.h>
 #import "PPOperateFile.h"
 
+
+typedef enum {
+    
+    // 传入数据为空。
+    PPErrorDomain_NothingToNull = -11,
+    
+} PPAErrorCode;
+
+
 @class PPOperateFile;
 
 @interface PPAuxiliary : NSObject
 
++ (NSArray *)MacLoveRepeat:(NSArray *)RepeatArr error:(NSError **)outError;
 
-+ (NSArray *) MacLoveRepeat:(NSArray *)RepeatArr;
++ (NSArray *)PPinvertedArray:(NSArray *)aArray error:(NSError **)outError;
 
-+ (NSArray *)queryFilePath: (NSString *)FilePath;
++ (NSArray *)PPqueryFilePath:(NSString *)FilePath error:(NSError **)outError;
 
 + (NSString *)generateTradeNOPlist;
 
 + (NSString *)generateTradeNO;
+
++(NSString *)PPGetOrderNO:(NSString *)aStr;
+
++(NSString *)PPGetNowTime;
+
++(NSString *)machineName;
 
 @end

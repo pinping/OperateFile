@@ -6,19 +6,20 @@
 	@data	13-3-22
   Copyright (c) 2013年 maclove. All rights reserved.
 */
-
-
-
 #import <UIKit/UIKit.h>
 
 @interface UIImage (PPImageScale)
 
+- (id)createRoundedRectImage:(UIImage *)image size:(CGSize)size ovalWidth:(float)ovalWidth ovalHeight:(float)ovalHeight;
 
-- (UIImage *)scaleToWidth:(float)width;
+- (UIImage *)PPImgScaleToWidth:(float)width;
 
-- (UIImage *)scaleToHeight:(float)height;
+- (UIImage *)PPImgScaleToHeight:(float)height;
 
-- (UIImage *)scaleToSize:(CGSize)size;
+- (UIImage *)PPImgScaleToSize:(CGSize)size;
 
+- (UIImage *)PPreSizeImage:(CGSize)reSize;
+
+- (UIImage *)fixOrientation;
 
 @end

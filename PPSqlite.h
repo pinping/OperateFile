@@ -17,4 +17,6 @@
 //- (void) openTheCreate;
 - (void) openSqlite:(NSString *)sql;
 - (void) execSql: (NSString *)sql;
+- (NSString *)selectSql;
+-(void)closeSql;
 @end
