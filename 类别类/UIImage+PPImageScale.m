@@ -36,17 +36,8 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect, float ovalWi
     CGContextClosePath(context);
     CGContextRestoreGState(context);
 }
-/**
- *	@brief	通过传入的width,height来修改图片的圆角
- *
- *  @param	size 图片尺寸的宽度
- *
- *  @param	ovalWidth 需要生成图片的圆角Width
- *
- *  @param	ovalHeight 需要生成图片的圆角Height
- *
- *	@return	返回修改的图片
- */
+
+
 - (id) createRoundedRectImage:(UIImage*)image size:(CGSize)size ovalWidth:(float)ovalWidth ovalHeight:(float)ovalHeight
 {
 		// the size of CGContextRef
@@ -64,19 +55,15 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect, float ovalWi
     CGContextClip(context);
     CGContextDrawImage(context, CGRectMake(0, 0, w, h), img.CGImage);
     CGImageRef imageMasked = CGBitmapContextCreateImage(context);
+		 UIImage *finalImage = [UIImage imageWithCGImage:imageMasked]; 
     CGContextRelease(context);
     CGColorSpaceRelease(colorSpace);
-    return [UIImage imageWithCGImage:imageMasked];
+		CGImageRelease(imageMasked); 
+    return finalImage;
 }
 
 
-/**
- *	@brief	通过传入的width来等比缩小或放大图片
- *
- *  @param	width 需要图片尺寸的宽度
- *
- *	@return	返回新的改变大小后的图片
- */
+
 - (UIImage *)PPImgScaleToWidth:(float)width
 {
 		
@@ -89,17 +76,11 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect, float ovalWi
 		// 从当前context中创建一个改变大小后的图片
 		UIImage* scaledImage = UIGraphicsGetImageFromCurrentImageContext();
 		// 使当前的context出堆栈
-		UIGraphicsEndImageContext();
+//		UIGraphicsEndImageContext();
 		return scaledImage;
 }
 
-/**
- *	@brief	通过传入的height来等比缩小或放大图片
- *
- *  @param	height 需要图片尺寸的高度
- *
- *	@return	返回新的改变大小后的图片
- */
+
 - (UIImage *)PPImgScaleToHeight:(float)height
 {
 		
@@ -117,14 +98,8 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect, float ovalWi
 		
 }
 
-/**
- *	@brief	通过传入的size来等比缩小或放大图片
- *
- *  @param	size 需要图片尺寸
- *
- *	@return	返回新的改变大小后的图片
- */
--(UIImage*)PPImgScaleToSize:(CGSize)size
+
+-(UIImage *)PPImgScaleToSize:(CGSize)size
 {
 		// 创建一个bitmap的context
 		// 并把它设置成为当前正在使用的context
@@ -136,18 +111,15 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect, float ovalWi
 		// 使当前的context出堆栈
 		UIGraphicsEndImageContext();
 		// 返回新的改变大小后的图片
+		NSLog(@"scaledImage%@",scaledImage);
+		NSLog(@"image%f",scaledImage.size.height);
+		NSLog(@"image%f",scaledImage.size.width);
 		return scaledImage;
 }
 
 
-/**
- *	@brief	通过传入的text往UIImage上写字
- *
- *  @param	往UIImage上写字
- *
- *	@return	返回新图片
- */
--(UIImage *)addText:(NSString *)text1
+
+-(UIImage *)PPAddText:(NSString *)text1
 {
 
     int w = self.size.width;
@@ -171,29 +143,32 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect, float ovalWi
     CGContextSetTextMatrix(context, CGAffineTransformMakeRotation( -M_PI/4 ));
     CGContextShowTextAtPoint(context, 4, 52, text, strlen(text));
 		CGImageRef imageMasked = CGBitmapContextCreateImage(context);
-    CGContextRelease(context);
+		UIImage *finalImage = [UIImage imageWithCGImage:imageMasked];
+    CGImageRelease(imageMasked);
     CGColorSpaceRelease(colorSpace);
+		CGContextRelease(context);
 		
-    return [UIImage imageWithCGImage:imageMasked];
+    return finalImage;
 }
 
-/**
- *	@brief	通过传入的text往UIImage上写字
- *
- *  @param	往UIImage上写字
- *
- *	@return	返回新图片
- */
--(UIImage *)imageFromText:(NSString *)text
+
+-(UIImage *)PPimageFromText:(NSString *)text
 {
-		UIFont *font = [UIFont systemFontOfSize:20.0];
+		NSLog(@"%f",self.size.width);
+		UIFont *font = [UIFont systemFontOfSize:self.size.height/2];
 		CGSize size  = [text sizeWithFont:font];
-		UIGraphicsBeginImageContext(size);
-		UIGraphicsGetCurrentContext();
+		UIGraphicsBeginImageContext(self.size);
+		CGContextRef context = UIGraphicsGetCurrentContext();
+		CGContextSetAllowsAntialiasing(context, true);
+    CGContextSetShouldAntialias(context, true);
 		// optional: add a shadow
 		// optional: also, to avoid clipping you should make the context size bigger     CGContextSetShadowWithColor(ctx, CGSizeMake(2.0, -2.0), 5.0, [[UIColor grayColor] CGColor]);
 		// draw in context
-		[text drawAtPoint:CGPointMake(0.0, 0.0) withFont:font];
+		[self drawInRect:CGRectMake(0, 0, self.size.width, self.size.height)];
+		UIColor* fillColor = [UIColor colorWithRed: 1 green: 1 blue: 1 alpha: 1];
+		[fillColor setFill];
+		[text drawAtPoint:CGPointMake((self.size.width-size.width)/2,(self.size.height-size.height)/2) withFont:font];
+		
 		// transfer image
 		UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
 		UIGraphicsEndImageContext();
@@ -201,13 +176,7 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect, float ovalWi
 }
 
 
-/**
- *	@brief	在图片上居中位置截取reSize的大小的图像，产生一个新的reSize大小的图片。
- *
- *  @param	新图片的大小
- *
- *	@return	返回新图片
- */
+
 - (UIImage *)PPreSizeImage:(CGSize)reSize
 {
 		
@@ -220,11 +189,51 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect, float ovalWi
     UIGraphicsBeginImageContext(reSize);
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGContextDrawImage(context, myImageRect, subImageRef);
-    UIImage* smallImage = [UIImage imageWithCGImage:subImageRef];
+    UIImage *smallImage = [UIImage imageWithCGImage:subImageRef];
     UIGraphicsEndImageContext();
+		CGImageRelease(subImageRef);
+//		CGContextRelease(context);
     return smallImage;
 		
 }
+
+
+
+- (UIImage *)PPreSizeImageHeight:(float)height
+{
+		
+		CGRect myImageRect = CGRectMake( 0, (self.size.height - height)/2, self.size.width, height);
+		
+    CGImageRef imageRef = self.CGImage;
+    CGImageRef subImageRef = CGImageCreateWithImageInRect(imageRef, myImageRect);
+    UIGraphicsBeginImageContext(CGSizeMake(self.size.width, height));
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextDrawImage(context, myImageRect, subImageRef);
+    UIImage *smallImage = [UIImage imageWithCGImage:subImageRef];
+    UIGraphicsEndImageContext();
+		CGImageRelease(subImageRef);
+		//		CGContextRelease(context);
+    return smallImage;
+		
+}
+
+
+
+-(UIImage *)PPImgcomposeTemplate:(UIImage *)aImg subImg:(UIImage *)bImg
+{
+		NSLog(@"%f",aImg.size.width);
+		NSLog(@"%f",aImg.size.height);
+		CGRect  imgRect = CGRectMake(0, 0, aImg.size.width, aImg.size.height);
+		CGRect  image01Rect = CGRectMake(0, 0, aImg.size.width, aImg.size.height);
+		UIGraphicsBeginImageContext(aImg.size);
+		[aImg drawInRect:imgRect];
+		[bImg drawInRect:image01Rect];
+		UIImage *temp = UIGraphicsGetImageFromCurrentImageContext();
+		UIGraphicsEndImageContext();
+		temp = [temp createRoundedRectImage:temp size:aImg.size ovalWidth:aImg.size.width / 6 ovalHeight:aImg.size.width / 6];
+		return temp;
+}
+
 
 
 //代码让UIImage具有渐变效果
@@ -278,11 +287,7 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect, float ovalWi
 }
 
 
-/**
- *	@brief	如果拍照或导入的图片在程序里面显示是旋转,本方法调整图片方向。
- *
- *	@return	返回新图片
- */
+
 - (UIImage *)fixOrientation {
 		
     // No-op if the orientation is already correct
@@ -354,5 +359,8 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect, float ovalWi
     CGImageRelease(cgimg);
     return img;
 }
+
+
+
 
 @end

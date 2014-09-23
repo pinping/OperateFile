@@ -16,14 +16,12 @@
 {
 		NSMutableArray	*mianArr = [NSMutableArray arrayWithArray:mArray];
 		NSMutableArray  *subArr = [NSMutableArray arrayWithArray:sArray];
-		for (int i = 0; i<[mianArr count]; i++) {
+		for (int i = (int)[mianArr count]-1; i >= 0; i--) {
 				if ([subArr containsObject:[mianArr objectAtIndex:i]]) {
 						
 						[mianArr removeObjectAtIndex:i];
 				}
 		}
-		
-		
 		return mianArr;
 }
 
@@ -35,11 +33,9 @@
     if (aBool) {
 				UIImage	*tempImg = [aImagey PPImgScaleToWidth:150.0f];
 				[UIImageJPEGRepresentation(tempImg , 1.0f) writeToFile:filePathPro atomically:YES];
-				[UIImageJPEGRepresentation(aImagey , 1.0f) writeToFile:filePath atomically:YES];
 				tempImg = nil;
-		} else {
-        [UIImageJPEGRepresentation(aImagey , 1.0f) writeToFile:filePath atomically:YES];
-    }
+		}
+		[UIImageJPEGRepresentation(aImagey , 0.7f) writeToFile:filePath atomically:YES];
 }
 
 
@@ -54,34 +50,30 @@
  *
  *  @param	FileImagey  指定图片
  */
-+ (void)PPsaveToFile    :(NSString *)FilePath
-        FilePlist       :(NSString *)FilePlist
-        FilePlistType   :(NSString *)FilePlistType
-        FileName        :(NSString *)FileName
-        FileArray       :(NSArray *)FileArray
-        FileImagey      :(UIImage *)FileImagey
++ (void)PPsaveToFile:(NSString *)FilePath FilePlist:(NSString *)FilePlist FilePlistType:(NSString *)FilePlistType FileName:(NSString *)FileName FileArray:(NSArray *)FileArray FileImagey:(UIImage *)FileImagey
 {
-		
-		
     [UIImageJPEGRepresentation(FileImagey, 1.0f) writeToFile:[self PPdataFilePath:FilePath FileName:FileName FileType:PPjpgType] atomically:YES];
 
-    int     imgW = FileImagey.size.width;
-    int     imgH = FileImagey.size.height;
+    float   imgW = FileImagey.size.width;
+    float   imgH = FileImagey.size.height;
     UIImage *temp = nil;
 
-    if (imgW > imgH) {
-        temp = [FileImagey PPreSizeImage:CGSizeMake(150, 216)];
+    if (imgW * 1.325 < imgH) {
+        temp = [FileImagey PPreSizeImage:CGSizeMake(imgW, imgW * 1.325)];
+    } else {
+        temp = [FileImagey PPreSizeImage:CGSizeMake(imgH * 0.754, imgH)];
     }
 
-    if (imgH > imgW) {
-        temp = [FileImagey PPreSizeImage:CGSizeMake(150, 216)];
-    }
-
+    temp = [temp PPImgScaleToWidth:150];
     [UIImageJPEGRepresentation(temp, 1.0f) writeToFile:[self PPdataFilePath:FilePath FileName:[FileName stringByAppendingString:SmallPicture] FileType:PPjpgType] atomically:YES];
-		if (FilePlist) {
-				[self PPsaveToFilePlist:FilePlist FileName:[PPAuxiliary generateTradeNOPlist] FileType:FilePlistType FileArray:FileArray fileNO:YES];
-		}
+
+    NSAssert(FilePlist, @"保存地址");
+    
+    if (FilePlist) {
+        [self PPsaveToFilePlist:FilePlist FileName:[PPAuxiliary PPGenerateTradeTime] FileType:FilePlistType FileArray:FileArray fileNO:YES];
+    }
 }
+
 
 /**
  *	@brief	根据传入的文件名，保存传入数据。
@@ -109,12 +101,17 @@
             NSMutableArray *zongPlist = [[NSMutableArray alloc] initWithArray:[self PPloadFromFile:FilePath FileName:FileName FileType:FileType]];
             [zongPlist addObjectsFromArray:FileArray];
             [zongPlist writeToFile:pathStr atomically:NO];
-            [zongPlist release];
             zongPlist = nil;
         } else {
-            [FileArray writeToFile:pathStr atomically:NO];
+            BOOL bo= [FileArray writeToFile:pathStr atomically:NO];
+						NSLog(@"bo = %d",bo);
         }
-    }
+    }else{
+				[PPOperateFile PPdeleteToFile:FilePath FileName:FileName FileType:FileType];
+//				NSLog(@"FileArray%@",FileArray);
+//				[FileArray writeToFile:pathStr atomically:NO];
+				
+		}
 }
 
 + (void)PPsaveToFilePlist   :(NSString *)FilePath
@@ -122,7 +119,7 @@
         FileType            :(NSString *)FileType
         FileArray           :(NSArray *)FileArray
         fileNO              :(BOOL)fileNO
-										 Sorting:(BOOL)aSort
+        Sorting				:(BOOL)aSort
 {
     NSString *pathStr = [self PPdataFilePath:FilePath FileName:FileName FileType:FileType];
 		
@@ -133,13 +130,11 @@
 								NSMutableIndexSet *indexes = [NSMutableIndexSet indexSetWithIndex:0];
 								[zongPlist insertObjects:FileArray atIndexes:indexes];
 								[zongPlist writeToFile:pathStr atomically:NO];
-								[zongPlist release];
 								zongPlist = nil;
 						}else{
 								NSMutableArray *zongPlist = [[NSMutableArray alloc] initWithArray:[self PPloadFromFile:FilePath FileName:FileName FileType:FileType]];
 								[zongPlist addObjectsFromArray:FileArray];
 								[zongPlist writeToFile:pathStr atomically:NO];
-								[zongPlist release];
 								zongPlist = nil;
 						}
             
@@ -149,46 +144,21 @@
     }
 }
 
-/**
- *	@brief	通过《dataFilePath》方法查找到指定的文件，读取文件的数据，返回数据。
- *
- *  @param	FilePath  指定图片路径
- *
- *  @param	FileName  指定图片名称
- *
- *  @param	FileType  指定图片类型
- *
- *	@return	返回一个NSArray的数据。
- */
-+ (NSArray *)   PPloadFromFile  :(NSString *)FilePath
-                FileName        :(NSString *)FileName
-                FileType        :(NSString *)FileType
+
++ (id)PPloadFromFile:(NSString *)FilePath FileName:(NSString *)FileName FileType:(NSString *)FileType
 {
     NSString *filePath = [self PPdataFilePath:FilePath FileName:FileName FileType:FileType];
 
-    NSArray *arrays = nil;
+    id tempData = nil;
 
     if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
-        arrays = [[[NSArray alloc] initWithContentsOfFile:filePath] autorelease];
+        tempData = [[NSArray alloc] initWithContentsOfFile:filePath];
     }
 
-    return arrays;
+    return tempData;
 }
 
-/**
- *	@brief	查找指定名称的jpg文件，如果文件存在返回文件的路径，反之返回一个路径。
- *
- *  @param	FilePath  指定图片路径
- *
- *  @param	FileName  指定图片名称
- *
- *  @param	FileType  指定图片类型
- *
- *	@return	返回查找到的路径
- */
-+ (NSString *)  PPdataFilePath  :(NSString *)FilePath
-                FileName        :(NSString *)FileName
-                FileType        :(NSString *)FileType
++ (NSString *)PPdataFilePath:(NSString *)FilePath FileName:(NSString *)FileName FileType:(NSString *)FileType
 {
     NSString    *path;
     NSString    *type;
@@ -222,7 +192,7 @@
         FileType        :(NSString *)FileType
 {
 
-    NSArray *queryNumber = [NSArray arrayWithArray:[PPAuxiliary PPqueryFilePath:FilePath error:nil]];
+    NSArray *queryNumber = [NSArray arrayWithArray:[PPAuxiliary PPQueryFilePath:FilePath error:nil]];
     for (int i = 0; i < [queryNumber count]; i++) {
         NSString        *imgStr = [queryNumber objectAtIndex:i];
         NSMutableArray  *plistArray = [NSMutableArray arrayWithArray:[self PPloadFromFile:FilePath FileName:imgStr FileType:nil]];
@@ -250,8 +220,15 @@
         FileName        :(NSString *)FileName
         FileType        :(NSString *)FileType
 {
+    NSError *error;
+
     NSString *filePath = [self PPdataFilePath:FilePath FileName:FileName FileType:FileType];
-    [[NSFileManager defaultManager] removeItemAtPath:filePath error:nil];
+
+    NSAssert(filePath, @"文件路径为空");
+
+    if (filePath) {
+        [[NSFileManager defaultManager] removeItemAtPath:filePath error:&error];
+    }
 }
 
 @end
