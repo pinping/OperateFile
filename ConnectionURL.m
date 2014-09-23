@@ -10,7 +10,6 @@
 
 @implementation ConnectionURL
 
-
 + (id)baseConnectionURL:(NSString *)url
 {
     if (url || [NSURL URLWithString:url]) {
@@ -20,18 +19,104 @@
         if (response == nil) {
             return nil;
         }
-
         id memberList = [NSJSONSerialization JSONObjectWithData:response options:NSJSONReadingMutableLeaves error:nil];
 
         if (memberList == nil) {
             return nil;
         }
-        
         return memberList;
     }
-
     return nil;
 }
+
++ (void)baseConnectionURL:(NSString *)url Block:(idBlock)block
+{
+    if (url || [NSURL URLWithString:url]) {
+        NSString *tempUrl = [url stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        NSMutableURLRequest *request = [[NSMutableURLRequest alloc]initWithURL:[NSURL URLWithString:tempUrl] cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10];
+        
+        [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError){
+            
+            if (connectionError) {
+                NSLog(@"error");
+                block(nil);
+                return ;
+            }
+            else if (((NSHTTPURLResponse *)response).statusCode == 200)
+            {
+                
+                id memberList = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
+                NSLog(@"--------- %@",memberList);
+                if (memberList != nil) {
+                    block(memberList);
+                }
+            }else{
+                block(nil);
+            }
+        }];
+    }
+    
+    return ;
+}
+
++ (id)postConnectionURL:(NSString *)url data:(NSData *)postBody
+{
+    
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc]initWithURL:[NSURL URLWithString:url] cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10];
+    
+    [request setHTTPMethod:@"POST"];//设置请求方式为POST，默认为GET
+    [request setHTTPBody:postBody];
+    NSHTTPURLResponse* urlResponse = nil;
+    NSError *error = [[NSError alloc] init];
+    NSData *response = [NSURLConnection sendSynchronousRequest:request returningResponse:&urlResponse error:&error];
+    if (response == nil) {
+        return nil;
+    }
+    NSString* aStr= [[NSString alloc] initWithData:response encoding:NSASCIIStringEncoding];
+    
+    NSLog(@"aStr %@",aStr);
+    
+    id memberList = [NSJSONSerialization JSONObjectWithData:response options:NSJSONReadingMutableLeaves error:nil];
+    if (memberList == nil) {
+        return nil;
+    }
+    return memberList;
+}
+
++ (void)postConnectionURL:(NSString *)url data:(NSData *)postBody Block:(idBlock)block
+{
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc]initWithURL:[NSURL URLWithString:url] cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10];
+    [request setHTTPMethod:@"POST"];//设置请求方式为POST，默认为GET
+    [request setHTTPBody:postBody];
+    
+    [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError){
+        
+        if (connectionError) {
+            NSLog(@"error");
+            return ;
+        }
+        else if (((NSHTTPURLResponse *)response).statusCode == 200)
+        {
+            NSString* aStr= [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
+            
+            NSLog(@"aStr %@",aStr);
+            
+            id memberList = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
+            NSLog(@"--------- %@",memberList);
+            if (memberList != nil) {
+                block(memberList);
+            }
+        }
+        
+        NSLog(@"aStr %ld",(long)((NSHTTPURLResponse *)response).statusCode);
+    }];
+    
+    NSLog(@"---------");
+}
+
+
+
+
 
 
 static NSString * const FORM_FLE_INPUT = @"file";
@@ -174,7 +259,6 @@ static NSString * const FORM_FLE_INPUT = @"file";
     return fullPathToFile;
 }
 
-
 /**
  * 生成GUID
  */
@@ -193,9 +277,6 @@ static NSString * const FORM_FLE_INPUT = @"file";
     
     return uuidString;
 }
-
-
-
 
 
 @end

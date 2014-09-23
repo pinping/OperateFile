@@ -9,9 +9,10 @@
 #import <Foundation/Foundation.h>
 #import "ASIHTTPRequest.h"
 #import "ASIFormDataRequest.h"
-
+#import "ProjectProtocol.h"
 
 @interface ConnectionURL : NSObject
+
 
 
 /**
@@ -22,6 +23,41 @@
  *  @return 服务器返回的数据
  */
 + (id)baseConnectionURL:(NSString *)url;
+
+/**
+ *  基本Get异步链接服务器的基本方法
+ *
+ *  @param url 链接地址
+ *
+ *  @return 服务器返回的数据
+ */
++ (void)baseConnectionURL:(NSString *)url Block:(idBlock)block;
+
+
+/**
+ *  基本post链接服务器的基本方法
+ *
+ *  @param url 链接地址
+ *
+ *  @return 服务器返回的数据
+ */
++ (id)postConnectionURL:(NSString *)url data:(NSData *)postBody;
+
+
+/**
+ *  基本post异步链接服务器的基本方法
+ *
+ *  @param url 链接地址
+ *
+ *  @return 服务器返回的数据
+ */
++ (void)postConnectionURL:(NSString *)url data:(NSData *)postBody Block:(idBlock)block;
+
+
+
+
+
+
 
 
 /**
